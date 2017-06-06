@@ -4,10 +4,18 @@
 package algebras
 
 import freestyle._
+import play.api._
+import play.api.mvc._
+import play.api.data._
+import models.Models.Userdata
 
 object algebras {
-  @free trait Noop {
-    def ok: FS[String]
+  @free trait Home {
+    def index: FS[Form[Userdata]]
+
+    def user: FS[Option[Form[Userdata]]]
+
+    def getUser: FS[Userdata]
   }
 
 }

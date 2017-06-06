@@ -1,0 +1,14 @@
+@import models.Models.Userdata
+
+@(userdata: Userdata)
+
+@main("Welcome to Play"){
+@if(!userdata.isEmpty) {
+<h1>Usuario valido</h1>
+<ul>
+  <li>Email: @(userdata.email)</li>
+  <li>Name: @(userdata.username)</li>
+  <li>Age: @(userdata.age.get)</li>
+</ul>
+}
+}

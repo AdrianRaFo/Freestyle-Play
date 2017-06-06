@@ -1,5 +1,18 @@
-@()
 
-@main("Welcome to Play") {
-  <h1>Welcome to Play!</h1>
+@import models.Models.Userdata
+@import helper._
+@import play.api.mvc.RequestHeader
+@(userForm : Form[Userdata], message : Option[String] = None)(implicit messages : Messages, request:RequestHeader)
+
+@main("Welcome to Play"){
+@if(!message.isEmpty) {
+<h3>@message.get</h3>
+}
+@form(routes.HomeController.user){
+@helper.CSRF.formField
+@inputText(userForm("email"), '_showConstraints -> false)
+@inputText(userForm("username"), '_showConstraints -> false)
+@inputText(userForm("age"), '_showConstraints -> false)
+<input type="submit" value="Submit">
+}
 }
