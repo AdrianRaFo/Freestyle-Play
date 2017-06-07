@@ -20,7 +20,7 @@ import scala.concurrent.Future
 import scala.concurrent.ExecutionContext
 import scala.util.{Success}
 
-import models.Models.Userdata
+import models.Models._
 
 import algebras.algebras._
 import algebras.implicits._
@@ -29,6 +29,8 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents)(i
     extends BaseController
     with I18nSupport {
 
+  val userForm = Form(
+    mapping("email" -> email, "username" -> nonEmptyText, "age" -> optional(number))(Userdata.apply)(Userdata.unapply))
   /*def index = Action.async { _ =>
     for {
       msg <- Noop[Noop.Op].ok
@@ -36,28 +38,27 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents)(i
   }*/
 
   def index = Action.async { implicit request =>
-    for {
-      userForm ← Home[Home.Op].index
-    } yield Ok(views.html.index(userForm))
+    Home[Home.Op].index(userForm) map (form ⇒ Ok(views.html.index(form)))
   }
 
-  def user = Action.async { implicit request ⇒
-    for {
-      formResult ← Home[Home.Op].user
-
-    } yield
-      if (formResult.isEmpty)
-        Redirect(routes.HomeController.getUser)
-      else
+  def user = Action { implicit request ⇒
+    userForm.bindFromRequest.fold(
+      formWithErrors => {
+        // binding failure, you retrieve the form containing errors:
         BadRequest(
           views.html
-            .index(formResult.get, s"Validation error in fields: ${formResult.get.errors.map(_.key).mkString(", ")}"))
+            .index(formWithErrors, s"Validation error in fields: ${formWithErrors.errors.map(_.key).mkString(", ")}"))
+
+      },
+      userDataOk => {
+        /* binding success, you get the actual value. */
+        Redirect(routes.HomeController.getUser(userDataOk))
+      }
+    )
   }
 
-  def getUser = Action.async { implicit request =>
-    for {
-      user ← Home[Home.Op].getUser
-    } yield Ok(views.html.user(user)) //Ok(Json.toJson(user))
+  def getUser(userdata: Userdata) = Action.async { implicit request =>
+    Home[Home.Op].getUser(userdata) map (user ⇒ Ok(views.html.user(user)))
 
   }
 }

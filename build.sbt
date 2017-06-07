@@ -13,3 +13,9 @@ libraryDependencies ++= Seq(
   "com.typesafe.play" %% "play-json"           % "2.6.0-RC2",
   "io.frees"          %% "freestyle"           % "0.2.0",
   "io.frees"          %% "freestyle-http-play" % "0.2.0")
+
+// Adds additional packages into Twirl
+TwirlKeys.templateImports += "models.Models._"
+
+// Adds additional packages into conf/routes
+play.sbt.routes.RoutesKeys.routesImport += "models.Models._"
